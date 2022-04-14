@@ -117,6 +117,9 @@ def f(x,isWithinGa=True):
     # 目标函数
     # 目前
     Opt_function_Z = TotalTimeProfit + 1/AgencyProfit_pi
+    if Opt_function_Z<0:
+        print("Need to debug, the objective function is less than 0")
+        input()
     # 考虑新修改
     # Opt_function_Z = TotalTimeProfit - AgencyProfit_pi
 
@@ -140,7 +143,7 @@ def solve_one_ga_para_seting():
     varbound = np.array([[0, 1], [para.Fare_min, para.Fare_max], [0, 1], [0, 1]])
     vartype = np.array([['real'], ['real'], ['real'], ['real']])
  
-    algorithm_param = {'max_num_iteration': 100,
+    algorithm_param = {'max_num_iteration': 5000,
                     'population_size': 50,
                     'mutation_probability': 0.1,
                     'elit_ratio': 0.01,
@@ -149,8 +152,11 @@ def solve_one_ga_para_seting():
                     'crossover_type': 'uniform',
                     'max_iteration_without_improv': None}
 
-    model = ga(function=f, dimension=4, variable_type_mixed=vartype,
-                   variable_boundaries=varbound, algorithm_parameters=algorithm_param,convergence_curve=False)
+    model = ga(function=f, dimension=4, 
+                variable_type_mixed=vartype,
+                variable_boundaries=varbound,
+                algorithm_parameters=algorithm_param,
+                convergence_curve=False)
     
     model.run()
     ans = f(model.best_variable,isWithinGa = False) 
@@ -164,9 +170,9 @@ if __name__ == "__main__":
     
     df = pd.DataFrame(columns=['Passenger', 'opt_beta', 'opt_basefare', 'HeadwayFixed_H1', 'HeadwayFlex_H2', 'Opt_function_Z', 'TotalTimeProfit', 'AgencyProfit_pi', 'TotalAgencyTime', 'TotalUserTime', 'TotalFare', 'TotalCost_c', 'DistFixed_d1', 'DistFlex_d2', 'FleetsizeFixed_m1', 'FleetsizeFlex_m2', 'WalkTime_A', 'WaitTime_W', 'TravelTime_T'])
 
-    for i in range(5, 501, 55):  # 乘客的数量
+    for i in range(10, 110, 10):  # 乘客的数量
         para.Passenger = i
-        for j in range(0, 1000):
+        for j in range(0,10):
             ans = solve_one_ga_para_seting()
             df = df.append([{'Passenger': ans[0], 'opt_beta':ans[1], 'opt_basefare':ans[2], 'HeadwayFixed_H1':ans[3], 'HeadwayFlex_H2':ans[4], 'Opt_function_Z':ans[5], 'TotalTimeProfit':ans[6], 'AgencyProfit_pi':ans[7], 'TotalAgencyTime':ans[8], 'TotalUserTime':ans[9], 'TotalFare':ans[10], 'TotalCost_c':ans[11], 'DistFixed_d1':ans[12], 'DistFlex_d2':ans[13], 'FleetsizeFixed_m1':ans[14], 'FleetsizeFlex_m2':ans[15], 'WalkTime_A':ans[16], 'WaitTime_W':ans[17], 'TravelTime_T':ans[18]}])
 
