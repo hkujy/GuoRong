@@ -25,11 +25,13 @@ from geneticalgorithm import geneticalgorithm as ga
 import pandas as pd
 import matplotlib.pyplot as plt
 import para
+import os
 
 res=[]
 
 
 def f(x,isWithinGa=True):
+    # x= [0.54052239,2.53739146,0.94173044,0.98313243]
     # Notes: you need to define before using
     FixedArea_a1 = para.invalidNum
     WalkDist_l1 = para.invalidNum
@@ -111,15 +113,26 @@ def f(x,isWithinGa=True):
     TotalAgencyTime = AgencyCost_dist * (DistFixed_d1 + DistFlex_d2) + AgencyCost_hour * (FleetsizeFixed_m1 + FleetsizeFlex_m2)
     TotalFare = 2 * para.Passenger * para.AreaLength_D * para.AreaSide_s * (para.FareFixed_f1 * (PassengerType_p1 + PassengerType_p2 * 2) + x[1] * (PassengerType_p2 * 2 + PassengerType_p4 * 2))
 
-    TotalTimeProfit = (TotalUserTime+TotalAgencyTime) * para.value_time
+    TotalTimeProfit = (TotalUserTime+TotalAgencyTime) * para.value_time  
     AgencyProfit_pi = TotalFare-TotalCost_c
 
     # 目标函数
     # 目前
-    Opt_function_Z = TotalTimeProfit + 1/AgencyProfit_pi
-    if Opt_function_Z<0:
+    # Opt_function_Z = TotalTimeProfit + 1/AgencyProfit_pi
+    # Opt_function_Z = TotalTimeProfit + np.power(abs(AgencyProfit_pi),1)*para.penalty
+    # Opt_function_Z = TotalTimeProfit - AgencyProfit_pi
+    if abs(AgencyProfit_pi)<0.05:
+        AgencyProfit_pi = 0
+    Opt_function_Z = TotalTimeProfit + np.abs(AgencyProfit_pi)*para.penalty
+    if Opt_function_Z < 0:
+        # Opt_function_Z = -Opt_function_Z*para.penalty
+        pass
+
+    if Opt_function_Z < 0.0:
+        pass
         print("Need to debug, the objective function is less than 0")
-        input()
+        print("{0},{1},{2},{3},{4},{5},{6}".format(para.Passenger, x[0], x[1], x[2], x[3], Opt_function_Z,AgencyProfit_pi))
+        os.system("pause")
     # 考虑新修改
     # Opt_function_Z = TotalTimeProfit - AgencyProfit_pi
 
@@ -148,7 +161,7 @@ def solve_one_ga_para_seting():
                     'mutation_probability': 0.1,
                     'elit_ratio': 0.01,
                     'crossover_probability': 0.5,
-                    'parents_portion': 0.3,
+                    'parents_portion': 0.5,
                     'crossover_type': 'uniform',
                     'max_iteration_without_improv': None}
 
@@ -169,19 +182,17 @@ def solve_one_ga_para_seting():
 if __name__ == "__main__":
     
     df = pd.DataFrame(columns=['Passenger', 'opt_beta', 'opt_basefare', 'HeadwayFixed_H1', 'HeadwayFlex_H2', 'Opt_function_Z', 'TotalTimeProfit', 'AgencyProfit_pi', 'TotalAgencyTime', 'TotalUserTime', 'TotalFare', 'TotalCost_c', 'DistFixed_d1', 'DistFlex_d2', 'FleetsizeFixed_m1', 'FleetsizeFlex_m2', 'WalkTime_A', 'WaitTime_W', 'TravelTime_T'])
-
-    for i in range(10, 110, 10):  # 乘客的数量
+    for i in range(100, 501, 50):  # 乘客的数量
         para.Passenger = i
-        for j in range(0,10):
+        for j in range(0,50):
             ans = solve_one_ga_para_seting()
             df = df.append([{'Passenger': ans[0], 'opt_beta':ans[1], 'opt_basefare':ans[2], 'HeadwayFixed_H1':ans[3], 'HeadwayFlex_H2':ans[4], 'Opt_function_Z':ans[5], 'TotalTimeProfit':ans[6], 'AgencyProfit_pi':ans[7], 'TotalAgencyTime':ans[8], 'TotalUserTime':ans[9], 'TotalFare':ans[10], 'TotalCost_c':ans[11], 'DistFixed_d1':ans[12], 'DistFlex_d2':ans[13], 'FleetsizeFixed_m1':ans[14], 'FleetsizeFlex_m2':ans[15], 'WalkTime_A':ans[16], 'WaitTime_W':ans[17], 'TravelTime_T':ans[18]}])
-
     df_mean = df.groupby(by='Passenger').mean().reset_index()
+    df_min = df.groupby(by='Passenger').min().reset_index()
     plt.rcParams['font.sans-serif'] = ['Times New Roman']
-    print(df)
-    print(df_mean)
     df.to_excel('result_total_new.xlsx', encoding="utf-8", index=None)
     df_mean.to_excel('result_mean_new.xlsx', encoding="utf-8", index=None)
+    df_min.to_excel('result_min_new.xlsx', encoding="utf-8", index=None)
     plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
 

@@ -10,6 +10,7 @@ AreaSide_s = 0.15
 Time_lost = 0.0033
 Time_pick = 0.0036
 Passenger = -100
+penalty = 1.0e6
 
 WalkWeight_wa = 1
 WaitWeight_ww = 1
@@ -21,7 +22,7 @@ value_hour = 20
 
 FareFixed_f1 = 2
 Fare_min = 2
-Fare_max = 8
+Fare_max = 10
 
 VehSpeed_v = 25
 WalkSpeed_vw =2
