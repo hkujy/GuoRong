@@ -16,8 +16,6 @@ x[2]:HeadwayFixed_H1
 x[3]:HeadwayFlex_H2
 """
 
-
-
 from cmath import log
 from math import fabs
 import numpy as np
@@ -28,6 +26,9 @@ import para
 import os
 import funs
 import random
+from deap import algorithms,base,creator,tools
+import math
+import deapGa
 
 
 res=[]
@@ -36,8 +37,6 @@ res=[]
 def evaluate(x,isWithinGa=True):
     # x= [0.54052239,2.53739146,0.94173044,0.98313243]
     # Notes: you need to define before using
-    x[2] = 0.4
-    x[3] = 0.4
     FixedArea_a1 = para.invalidNum
     WalkDist_l1 = para.invalidNum
     WalkDist_l2 = para.invalidNum
@@ -129,6 +128,7 @@ def evaluate(x,isWithinGa=True):
     # if abs(AgencyProfit_pi)<0.05:
         # AgencyProfit_pi = 0
     Opt_function_Z = TotalTimeProfit + np.abs(AgencyProfit_pi)*para.penalty
+    # Opt_function_Z = TotalTimeProfit + np.abs(AgencyProfit_pi)*para.penalty
     if Opt_function_Z < 0:
         # Opt_function_Z = -Opt_function_Z*para.penalty
         pass
@@ -161,8 +161,8 @@ def solve_one_ga_para_seting():
     varbound = np.array([[0, 1], [para.Fare_min, para.Fare_max], [0, 1], [0, 1]])
     vartype = np.array([['real'], ['real'], ['real'], ['real']])
  
-    algorithm_param = {'max_num_iteration': 1000,
-                    'population_size': 50,
+    algorithm_param = {'max_num_iteration': para.max_ga_iter,
+                    'population_size': para.ga_pop_size,
                     'mutation_probability': 0.1,
                     'elit_ratio': 0.01,
                     'crossover_probability': 0.5,
@@ -182,31 +182,41 @@ def solve_one_ga_para_seting():
     return ans
 
 
-
 def Test_lamda():
     df = pd.DataFrame(columns=['Passenger', 'opt_beta', 'opt_basefare', 'HeadwayFixed_H1', 'HeadwayFlex_H2', 'Opt_function_Z', 'TotalTimeProfit', 'AgencyProfit_pi', 'TotalAgencyTime', 'TotalUserTime', 'TotalFare', 'TotalCost_c', 'DistFixed_d1', 'DistFlex_d2', 'FleetsizeFixed_m1', 'FleetsizeFlex_m2', 'WalkTime_A', 'WaitTime_W', 'TravelTime_T'])
-    for i in range(100, 150, 50):  # 乘客的数量
+    for i in range(100, 500, 50):  # 乘客的数量
         para.Passenger = i
-        for j in range(0,2):
+        for j in range(0,para.max_random_test):
             ans = solve_one_ga_para_seting()
             df = df.append([{'Passenger': ans[0], 'opt_beta':ans[1], 'opt_basefare':ans[2], 'HeadwayFixed_H1':ans[3], 'HeadwayFlex_H2':ans[4], 'Opt_function_Z':ans[5], 'TotalTimeProfit':ans[6], 'AgencyProfit_pi':ans[7], 'TotalAgencyTime':ans[8], 'TotalUserTime':ans[9], 'TotalFare':ans[10], 'TotalCost_c':ans[11], 'DistFixed_d1':ans[12], 'DistFlex_d2':ans[13], 'FleetsizeFixed_m1':ans[14], 'FleetsizeFlex_m2':ans[15], 'WalkTime_A':ans[16], 'WaitTime_W':ans[17], 'TravelTime_T':ans[18]}])
-    df_mean = df.groupby(by='Passenger').mean().reset_index()
+    # df_mean = df.groupby(by='Passenger').mean().reset_index()
     df_min = df.groupby(by='Passenger').min().reset_index()
     plt.rcParams['font.sans-serif'] = ['Times New Roman']
     df.to_excel('result_total_new.xlsx', encoding="utf-8", index=None)
-    df_mean.to_excel('result_mean_new.xlsx', encoding="utf-8", index=None)
+    # df_mean.to_excel('result_mean_new.xlsx', encoding="utf-8", index=None)
     df_min.to_excel('result_min_new.xlsx', encoding="utf-8", index=None)
     plt.rcParams['font.sans-serif'] = ['Times New Roman']
 
-
     funs.BackUpScripts("TestLamda")
 
+    df_min.plot(x='Passenger',y='opt_beta')
+    plt.ion()
+    plt.pause(2)
+    plt.savefig("Opt_beta")
+    plt.close
+
+    df_min.plot(x='Passenger',y='opt_basefare')
+    plt.ion()
+    plt.pause(2)
+    plt.savefig("Opt_fare.png",bbox_inches='tight', dpi=600)
+    plt.close
 
 
 
 if __name__ == "__main__":
     
     Test_lamda()
+    # deapGa.ga()
 
 
 

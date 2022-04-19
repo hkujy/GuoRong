@@ -4,7 +4,9 @@
 
 
 root_folder = "C:\GitCodes\GuoRong\\"
-
+max_random_test = 10
+max_ga_iter = 1000
+ga_pop_size = 50
 #HeadwayFixed_H1 = 0.15
 #HeadwayFlex_H2 = 0.25
 invalidNum = -9999999

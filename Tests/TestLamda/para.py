@@ -4,8 +4,9 @@
 
 
 root_folder = "C:\GitCodes\GuoRong\\"
-
-
+max_random_test = 10
+max_ga_iter = 10
+ga_pop_size = 5
 #HeadwayFixed_H1 = 0.15
 #HeadwayFlex_H2 = 0.25
 invalidNum = -9999999
@@ -14,7 +15,7 @@ AreaSide_s = 0.15
 Time_lost = 0.0033
 Time_pick = 0.0036
 Passenger = -100
-penalty = 1.0e6
+penalty = 1.0e4
 
 WalkWeight_wa = 1
 WaitWeight_ww = 1
@@ -39,6 +40,14 @@ StopFixed_N = AreaLength_D / AreaSide_s + 1
 
 # weight_time = 1
 # weight_profit = 1
+nvars = 4
+nbit_per_var = 16 
+npop = 50  # population size 
+ngen = 50000  # number of generations
+ 
+lb = [0.0000001,Fare_min,0.0000001,0.0000001]
+ub = [1,Fare_max,1,1]
+
 
 def set_default_para():
     
